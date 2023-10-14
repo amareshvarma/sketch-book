@@ -72,6 +72,7 @@ const Toolbox=()=>{
                 min={1}
                 max={10}
                 step={1}
+                value={size}
                 onChange={updateBrushSize}
               />
             </div>

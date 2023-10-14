@@ -5,9 +5,11 @@ import Toolbox from '@/components/Toolbox'
 export default function Home() {
   return (
     <>
-      <Menu />
-      <Toolbox />
-      <Board/>
+      <div style={{overflowX:"hidden", boxSizing:"border-box"}}>
+        <Menu />
+        <Toolbox />
+        <Board />
+      </div>
     </>
   );
 }

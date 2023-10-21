@@ -53,8 +53,7 @@ useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    context.fillStyle = "white";
-  context.fillRect(0, 0, canvas.width, canvas.height);
+    
 
     const changeConfig = (color, size) => {
 
@@ -76,75 +75,90 @@ useEffect(() => {
   }, [color, size]);
 
 
- useLayoutEffect(() => {
-   if (!canvasRef.current) return;
-   const canvas = canvasRef.current;
-   const context = canvas.getContext("2d");
+  useLayoutEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
 
 
-   canvas.width = window.innerWidth;
-   canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+      context.fillStyle = "white";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+  
 
-   const beginPath = (x, y) => {
-     context.beginPath();
-     context.moveTo(x, y);
-   };
+    const beginPath = (x, y) => {
+      context.beginPath();
+      context.moveTo(x, y);
+    };
 
-   const drawLine = (x, y) => {
-     context.lineTo(x, y);
-     context.stroke();
-   };
-   const handleMouseDown = (e) => {
-     shouldDraw.current = true;
-     beginPath(
-       e.clientX ,
-       e.clientY 
-     );
-     socket.emit("beginPath", {
-       x: e.clientX,
-       y: e.clientY 
-     });
-   };
+    const drawLine = (x, y) => {
+      context.lineTo(x, y);
+      context.stroke();
+    };
+    const handleMouseDown = (e) => {
+      shouldDraw.current = true;
+      beginPath(
+        e.clientX || e.touches[0].clientX,
+        e.clientY || e.touches[0].clientY
+      );
+      socket.emit("beginPath", {
+        x: e.clientX ,
+        y: e.clientY 
+      });
+    };
 
-   const handleMouseMove = (e) => {
-     if (!shouldDraw.current) return;
-     drawLine(
-       e.clientX,
-       e.clientY 
-     );
-     socket.emit("drawLine", {
-       x: e.clientX,
-       y: e.clientY 
-     });
-   };
+    const handleMouseMove = (e) => {
+      if (!shouldDraw.current) return;
+      drawLine(
+        e.clientX,
+        e.clientY 
+      );
+      socket.emit("drawLine", {
+        x: e.clientX,
+        y: e.clientY 
+      });
+    };
 
-   const handleMouseUp = (e) => {
-     shouldDraw.current = false;
-     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-     drawHistory.current.push(imageData);
-     historyPointer.current = drawHistory.current.length - 1;
-   };
+    const handleMouseUp = (e) => {
+      shouldDraw.current = false;
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      drawHistory.current.push(imageData);
+      historyPointer.current = drawHistory.current.length - 1;
+    };
 
-   const handleBeginPath = (path) => {
-     beginPath(path.x, path.y);
-   };
+    const handleBeginPath = (path) => {
+      beginPath(path.x, path.y);
+    };
 
-   const handleDrawLine = (path) => {
-     drawLine(path.x, path.y);
-   };
+    const handleDrawLine = (path) => {
+      drawLine(path.x, path.y);
+    };
 
-   canvas.addEventListener("mousedown", handleMouseDown);
-   canvas.addEventListener("mousemove", handleMouseMove);
-   canvas.addEventListener('mouseup',handleMouseUp);
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseup", handleMouseUp);
 
-   return ()=>{
-    canvas.removeEventListener("mousedown", handleMouseDown);
-    canvas.removeEventListener("mousemove", handleMouseMove);
-    canvas.removeEventListener("mouseup", handleMouseUp);
+    canvas.addEventListener("touchstart", handleMouseDown);
+    canvas.addEventListener("touchmove", handleMouseMove);
+    canvas.addEventListener("touchend", handleMouseUp);
 
-   }
+    socket.on("beginPath", handleBeginPath);
+    socket.on("drawLine", handleDrawLine);
 
-},[color,size])
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+
+      canvas.removeEventListener("touchstart", handleMouseDown);
+      canvas.removeEventListener("touchmove", handleMouseMove);
+      canvas.removeEventListener("touchend", handleMouseUp);
+
+      socket.off("beginPath", handleBeginPath);
+      socket.off("drawLine", handleDrawLine);
+    };
+  }, []);
 
 console.log(color,size);
 

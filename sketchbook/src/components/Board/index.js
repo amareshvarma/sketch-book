@@ -16,6 +16,7 @@ const Board=()=>{
 
 
 
+
 useEffect(() => {
     console.log("inside actionMenuItem")
   if (!canvasRef.current) return;
@@ -141,14 +142,9 @@ useEffect(() => {
     canvas.removeEventListener("mousemove", handleMouseMove);
     canvas.removeEventListener("mouseup", handleMouseUp);
 
-     canvas.removeEventListener("touchstart", handleMouseDown);
-     canvas.removeEventListener("touchmove", handleMouseMove);
-     canvas.removeEventListener("touchend", handleMouseUp);
+   }
 
-     socket.off("beginPath", handleBeginPath);
-     socket.off("drawLine", handleDrawLine);
-   };
- }, []);
+},[color,size])
 
 console.log(color,size);
 

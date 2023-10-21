@@ -5,6 +5,7 @@ import cx from "classnames";
 import {changeColor,changeBrushSize} from "@/slice/toolBox";
 import { socket } from "@/socket";
 
+
 const Toolbox=()=>{
     const dispatch = useDispatch();
     const activeMenuItem = useSelector((state)=>state.menu.activeMenuItem);
@@ -13,12 +14,12 @@ const Toolbox=()=>{
     const showBrushToolOption = activeMenuItem === MENU_ITEMS.PENCIL||activeMenuItem.ERASER
     const updateBrushSize = (e) => {
       dispatch(changeBrushSize({item:activeMenuItem,size:e.target.value}))
-      socket.emit("changeConfig", { color, size: e.target.value });
+      socket.emit('changeConfig',{color,size:e.target.value})
     };
 
     const updateColor=(newColor)=>{
-      dispatch(changeColor({item:activeMenuItem,color:newColor}));
-        socket.emit("changeConfig", { color: newColor, size });
+      dispatch(changeColor({item:activeMenuItem,color:newColor}))
+      socket.emit('changeConfig',{color:newColor,size})
     }
 
     return (
